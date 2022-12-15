@@ -10,34 +10,6 @@ class ProductRepository {
       : _firestore = firebaseFirestore;
 
 
-  Future<void> addProduct({required ProductModel productModel})async{
-    try {
-      DocumentReference newProduct = await  _firestore.collection("products").add(productModel.toJson());
-      await _firestore.collection("products").doc(newProduct.id).update({"productId":newProduct.id});
-      MyUtils.getMyToast(message: "Kategoriya muvaffaqiyatli qo'shildi");
-    } on FirebaseException catch(error){
-      MyUtils.getMyToast(message: error.message.toString());
-    }
-  }
-
-  Future<void> deleteProduct ({required String docId})async{
-    try{
-      await _firestore.collection("products").doc(docId).delete();
-      MyUtils.getMyToast(message: "Kategoriya muvaffaqiyatli o'chirildi");
-    } on FirebaseException catch(error){
-      MyUtils.getMyToast(message: error.message.toString());
-    }
-  }
-
-
-  Future<void> updateProduct({required ProductModel productModel})async{
-    try{
-      await _firestore.collection("products").doc(productModel.productId).update(productModel.toJson());
-      MyUtils.getMyToast(message: "Kategoriya muvaffaqiyatli yangilandi");
-    } on FirebaseException catch(error){
-      MyUtils.getMyToast(message: error.message.toString());
-    }
-  }
 
 
   Stream<List<ProductModel>> getProduct({required String categoryId}) async* {

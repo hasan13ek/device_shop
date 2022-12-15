@@ -1,11 +1,15 @@
+import 'package:device_shop/data/models/user_model.dart';
 import 'package:device_shop/ui/auth/widgets/my_rich_text.dart';
 import 'package:device_shop/utils/color.dart';
 import 'package:device_shop/utils/my_utils.dart';
 import 'package:device_shop/utils/style.dart';
 import 'package:device_shop/view_models/auth_view_model.dart';
+import 'package:device_shop/view_models/profile_view_model.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key, required this.onClickedSignIn}) : super(key: key);
@@ -37,9 +41,9 @@ class _SignUpPageState extends State<SignUpPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 20),
+            const  SizedBox(height: 20),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
+                padding:const EdgeInsets.symmetric(horizontal: 15),
                 child: TextFormField(
                   controller: emailController,
                   textInputAction: TextInputAction.next,
@@ -55,9 +59,9 @@ class _SignUpPageState extends State<SignUpPage> {
                   decoration: getInputDecoration(label: "Email"),
                 ),
               ),
-              const SizedBox(height: 20),
+             const SizedBox(height: 20),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
+                padding:const EdgeInsets.symmetric(horizontal: 15),
                 child: TextFormField(
                   controller: passwordController,
                   textInputAction: TextInputAction.next,
@@ -74,7 +78,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   decoration: getInputDecoration(label: "Password"),
                 ),
               ),
-              const SizedBox(height: 20),
+            const  SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: TextFormField(
@@ -106,7 +110,7 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  signUp() {
+  signUp() async {
     final isValid = formKey.currentState!.validate();
     if (!isValid) return;
 
@@ -115,9 +119,22 @@ class _SignUpPageState extends State<SignUpPage> {
     String confirmPassword = confirmPasswordController.text.trim();
 
     if (confirmPassword == password) {
-      Provider.of<AuthViewModel>(context,listen: false).signUp(
+      await Provider.of<AuthViewModel>(context, listen: false).signUp(
         email: email,
         password: password,
+      );
+      String? fcmToken = await FirebaseMessaging.instance.getToken();
+      if(!mounted) return;
+      Provider.of<ProfileViewModel>(context, listen: false).addUser(
+        UserModel(
+            docId: "",
+            age: 0,
+            userId: FirebaseAuth.instance.currentUser!.uid,
+            fullName: "",
+            email: email,
+            createdAt: DateTime.now().toString(),
+            imageUrl: "",
+            fcmToken: fcmToken ?? ""),
       );
     } else {
       MyUtils.getMyToast(message: "Passwords don't match!");

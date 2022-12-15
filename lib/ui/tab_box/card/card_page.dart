@@ -9,101 +9,94 @@ class CardPage extends StatefulWidget {
   @override
   State<CardPage> createState() => _CardPageState();
 }
-OrderModel? orders;
+
 class _CardPageState extends State<CardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
         title: const Text("Card"),
       ),
-      body: 
-             StreamBuilder<List<OrderModel>>(
-            stream: Provider.of<OrderViewModel>(context,listen: false).listenOrders(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              if (snapshot.hasData) {
-                List<OrderModel> orderModel = snapshot.data!;
-                return
-                  Column(
+      body:
+      Consumer<OrdersViewModel>(
+        builder: (context, orderViewModel, child) {
+          var totalPrice = orderViewModel.userOrders.isNotEmpty?orderViewModel.userOrders.map((e) => (e.totalPrice)).reduce((value, element) => value + element,):0;
+          return
+            Column(
+              children:<Widget> [
+                Expanded(
+                  child: ListView(
+                    children: List.generate(orderViewModel.userOrders.length, (index) {
+                      var order = orderViewModel.userOrders[index];
+                      return Card(
+                        color: Colors.grey.withOpacity(0.4),
+                        child: ListTile(
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                            Text("Nomi:   ${order.productName}",style: TextStyle(color: Colors.white),),
+                            Text("soni:   ${order.count}",style: TextStyle(color: Colors.white),),
+                          ],),
+                          onTap: () {
+                            orderViewModel.getSingleOrder(order.orderId);
+                            // Navigator.push(context,
+                            //     MaterialPageRoute(builder: (builder) => CardInfo()));
+                          },
+                          trailing: IconButton(
+                              onPressed: () {
+                                Provider.of<OrdersViewModel>(context,listen: false).deleteOrder(order.orderId);
+                              },
+                              icon: const Icon(Icons.delete,color: Colors.red,)),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.grey.withOpacity(0.4),
+                      boxShadow: [
+                        BoxShadow(
+                          blurRadius: 40,
+                          spreadRadius: 7,
+                          color: Colors.grey.withOpacity(0.2),
+                          offset: const Offset(4, 4),
+                        )
+                      ]),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: ListView(
-                          children: List.generate(orderModel.length, (index) {
-                            orders = orderModel[index];
-                            return Card(
-                              color: Colors.lightBlueAccent,
-                              child: ListTile(
-                                title: Text(orders!.productName),
-                                trailing: SizedBox(
-                                  width: 50,
-                                  child: Row(
-                                    children: [
-                                      IconButton(
-                                          onPressed: () {
-                                            Provider.of<OrderViewModel>(context,
-                                                listen: false)
-                                                .deleteOrder(docId: orders!.orderId,);
-
-                                            print("DELETING ID:${orders!.orderId}");
-                                          },
-                                          icon: const Icon(Icons.delete)),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          }),
+                      const Text(
+                        "Umumiy summa  --->",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
                         ),
                       ),
-                      Container(
-                        margin: const EdgeInsets.all(16),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                blurRadius: 8,
-                                spreadRadius: 7,
-                                color: Colors.grey.shade300,
-                                offset: const Offset(1, 4),
-                              )
-                            ]),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Umumiy summa  --->",
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.black,
-                              ),
-                            ),
-                            Text(
-                              "\$ ${orders!.totalPrice}",
-                              style: const TextStyle(
-                                fontSize: 20,
-                                color: Color(0xff4047C1),
-                              ),
-                            )
-                          ],
+                      Text(
+                        "\$ $totalPrice",
+                        style: const TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
                         ),
-                      ),
-
+                      )
                     ],
-                  );
-              } else {
-                return Center(
-                  child: Text(snapshot.error.toString()),
-                );
-              }
-            },
-        ),
+                  ),
+                )
+
+              ],
+            );
+
+
+        },
+      ),
     );
   }
 }
+

@@ -3,26 +3,35 @@ import 'package:device_shop/data/repositories/auth_repositroy.dart';
 import 'package:device_shop/data/repositories/categories_repository.dart';
 import 'package:device_shop/data/repositories/order_repository.dart';
 import 'package:device_shop/data/repositories/product_repository.dart';
+import 'package:device_shop/data/repositories/profile_repository.dart';
 import 'package:device_shop/ui/auth/auth_page.dart';
 import 'package:device_shop/ui/tab_box/tab_box.dart';
 import 'package:device_shop/view_models/auth_view_model.dart';
 import 'package:device_shop/view_models/categories_view_model.dart';
 import 'package:device_shop/view_models/orders_veiw_model.dart';
 import 'package:device_shop/view_models/products_view_model.dart';
+import 'package:device_shop/view_models/profile_view_model.dart';
 import 'package:device_shop/view_models/tab_view_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+// import 'package:firebase_messaging';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   var fireStore = FirebaseFirestore.instance;
+  await FirebaseMessaging.instance.subscribeToTopic("users");
   runApp(
     MultiProvider(
       providers: [
-        Provider(create: (context)=>OrderViewModel(orderRepository: OrderRepository(firebaseFirestore: fireStore))),
+        ChangeNotifierProvider(
+            create: (context) => OrdersViewModel(
+                ordersRepository:
+                    OrdersRepository(firebaseFirestore: fireStore))),
+        // Provider(create: (context)=>OrderViewModel(orderRepository: OrderRepository(firebaseFirestore: fireStore))),
         ChangeNotifierProvider(
           create: (context) => ProductViewModel(
             productRepository: ProductRepository(
@@ -37,6 +46,11 @@ void main() async {
             ),
           ),
         ),
+        ChangeNotifierProvider(
+            create: (context) => ProfileViewModel(
+                firebaseAuth: FirebaseAuth.instance,
+                profileRepository:
+                    ProfileRepository(firebaseFirestore: fireStore))),
         ChangeNotifierProvider(create: (context) => TabViewModel()),
         Provider(
             create: (context) => AuthViewModel(

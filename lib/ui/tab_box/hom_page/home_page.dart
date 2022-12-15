@@ -23,7 +23,9 @@ class _HomePageState extends State<HomePage> {
       initialIndex: 1,
       length: 2,
       child: Scaffold(
+        backgroundColor: Colors.black,
         appBar: AppBar(
+          backgroundColor: Colors.transparent,
           title: const Text("Home"),
           actions: [
             IconButton(onPressed: (){
@@ -67,11 +69,21 @@ class _HomePageState extends State<HomePage> {
                             padding: const EdgeInsets.all(8),
                             margin: const EdgeInsets.all(2),
                             decoration: BoxDecoration(
-                              color: indexx==index?Colors.lightBlueAccent:Colors.white,
-                              borderRadius: BorderRadius.circular(18),
-                              border: Border.all(width: 2,color: Colors.lightBlueAccent),
+                              color: Colors.grey.withOpacity(0.4),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(width: 2,color: Colors.red.withOpacity(0.3)),
                             ),
-                            child: Center(child: Text(categories[index].categoryName,style:const TextStyle(fontSize: 18,fontWeight: FontWeight.w400),)),
+                            child: Row(
+                              children: [
+                                Center(child: Text(categories[index].categoryName,style:const TextStyle(fontSize: 18,fontWeight: FontWeight.w400,color: Colors.white),)),
+                              const  SizedBox(width: 6,),
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(image: DecorationImage(image: NetworkImage(categories[index].imageUrl),fit: BoxFit.cover)),
+                                )
+                              ],
+                            ),
                           ),
                         );
                       },
@@ -103,9 +115,9 @@ class _HomePageState extends State<HomePage> {
                       List.generate(productViewModel.products.length, (index) {
                     var product = productViewModel.products[index];
                     return Card(
-                      color: Colors.lightBlueAccent,
+                      color: Colors.grey.withOpacity(0.4),
                       child: ListTile(
-                        title: Text(product.productName),
+                        title: Text(product.productName,style: TextStyle(color: Colors.white),),
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(builder: (_)=>InfoPage(productModel: product)));
                         },
